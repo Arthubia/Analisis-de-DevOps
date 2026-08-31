@@ -11,3 +11,6 @@ Repositorio que contiene el desarrollo completo del proyecto de análisis de dat
 1. Asegúrate de tener instalado **R** y **RStudio** junto con la librería `tidyverse`.
 2. Clona o descarga este repositorio en tu equipo.
 3. Abre el archivo `.Rmd` en RStudio y presiona **Knit** para compilar y reproducir todo el análisis de principio a fin sin errores.
+
+# Bitácora de prompts
+[Láboratorio n°3.pptx](https://github.com/user-attachments/files/31649240/Laboratorio.n.3.pptx)
