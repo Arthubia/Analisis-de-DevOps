@@ -1,0 +1,79 @@
+---
+title: "Análisis Estadístico DevOps"
+author: "Arthur Urtubia"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+```
+
+## 1. Introducción y Carga de Datos
+En este informe se analizan las métricas de rendimiento y desarrollo (DevOps) para evaluar tiempos de compilación, despliegue y tasa de errores.
+
+```{r}
+df <- read_csv("C:/R/devops_metrics.csv", show_col_types = FALSE)
+glimpse(df)
+```
+
+## 2. Resumen Estadístico Descriptivo
+Principales medidas de tendencia central y dispersión para las variables cuantitativas del sistema:
+
+```{r}
+summary(df %>% select(where(is.numeric), -id))
+```
+
+## 3. Distribuciones y Clase Modal (Regla de Sturges)
+Aplicando la regla de Sturges para agrupar los tiempos de compilación (`build_time_min`), se obtiene la siguiente tabla de frecuencias:
+
+```{r, echo=FALSE}
+n <- nrow(df)
+k <- ceiling(1 + 3.322 * log10(n))
+
+tabla_frecuencias <- df %>%
+  mutate(clase = cut(build_time_min, breaks = k)) %>%
+  count(clase, name = "fa") %>%
+  mutate(
+    fr  = fa / sum(fa),
+    fac = cumsum(fa),
+    frc = cumsum(fr)
+  )
+
+knitr::kable(tabla_frecuencias, caption = "Tabla de Frecuencias - Tiempos de Build")
+
+clase_modal <- tabla_frecuencias %>% filter(fa == max(fa))
+```
+
+* **Intervalo Modal Identificado:** La clase con mayor concentración de eventos es **`r as.character(clase_modal$clase)`** con una frecuencia de **`r clase_modal$fa`** registros.
+
+## 4. Matriz de Correlación de Pearson
+Evaluación de la relación lineal entre las variables cuantitativas del dataset:
+
+```{r, echo=FALSE}
+num_vars <- df %>% select(where(is.numeric), -id)
+matriz_cor <- cor(num_vars, use = "complete.obs") %>% round(2)
+knitr::kable(matriz_cor, caption = "Matriz de Correlación de Pearson")
+```
+
+## 5. Visualización de Resultados
+
+### Distribución de Tiempos de Build
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("C:/R/plot_histograma.png")
+```
+
+### Horas de Resolución de Tickets por Equipo
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("C:/R/plot_boxplot.png")
+```
+
+### Relación entre Tamaño del Commit y Bugs
+```{r, echo=FALSE, out.width="80%"}
+knitr::include_graphics("C:/R/plot_dispersion.png")
+```
